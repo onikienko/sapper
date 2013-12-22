@@ -325,12 +325,12 @@ $(function () {
                 ++marked_count;
                 showMarkedCount();
                 setStyles($this, cell);
-                checkWin();
             }
 
             $this[0].oncontextmenu = function () {
                 return false; // отмена показа контекстного меню
             };
+            checkWin();
         } else {
             if (cell.mark === 1) {
                 cell.mark = 0;
