@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minesweeper online</title>
+    <meta charset="utf-8"/>
+    <meta name="description" content="Minesweeper - online game. JavaScript realisation."/>
+    <meta name="Keywords" content="sapper miner minesweeper сапер online JavaScript CSS3"/>
+    <script src="jquery-2.0.3.min.js"></script>
+    <script src="sapper.js"></script>
+    <style>
+        body {
+            font-family: "Lucida Console", monospace;
+            background-color: #f9f9f9;
+        }
+
+        div, h1 {
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            margin: 20px auto;
+            border: 5px solid #A9A9A9;
+            box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.8);
+        }
+
+        #panel {
+            border-bottom: 2px solid #A9A9A9;
+            padding-bottom: 4px;
+            background-color: #A9A9A9;
+            color: #fff;
+            line-height: 20px;
+            font-size: 16px;
+        }
+
+        #panel a {
+            text-decoration: none;
+            margin: 0;
+        }
+
+        #game_type {
+            float: left;
+        }
+
+        #game_type a {
+            color: #fff;
+        }
+
+        #game_type > a.active:before {
+            content: '✔';
+        }
+
+        #theme {
+            float: right;
+        }
+
+        a.green {
+            color: #C5E26D;
+        }
+
+        a.blue {
+            color: #8AD5F0;
+        }
+
+        a.orange {
+            color: #FFD980;
+        }
+
+        #menu {
+            position: relative;
+            height: 40px;
+            text-align: center;
+            color: #000;
+            overflow: hidden;
+            background-color: #e7e7e7;
+        }
+
+        #menu > div {
+            width: 60px;
+            display: inline;
+        }
+
+        #open {
+            line-height: 42px;
+            font-size: 28px;
+            float: left;
+        }
+
+        #smile {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #FF8800;
+            font-size: 56px;
+            line-height: 38px;
+
+            transition: all .8s ease-in-out;
+            -webkit-transition: all .8s ease-in-out;
+            -moz-transition: all .8s ease-in-out;
+            -o-transition: all .8s ease-in-out;
+
+            transition-property: transform;
+            -webkit-transition-property: -webkit-transform;
+            -moz-transition-property: -moz-transform;
+            -o-transition-property: -o-transform;
+        }
+
+        #smile span {
+            cursor: pointer;
+
+        }
+
+        #smile.rotor {
+            transform: rotateY(360deg);
+            -moz-transform: rotate(360deg);
+            -webkit-transform: rotate(360deg);
+        }
+
+        #timer {
+            /*margin-right: 5px;*/
+            line-height: 42px;
+            font-size: 28px;
+            float: right;
+        }
+
+        #field {
+            border-top: 4px solid #A9A9A9;
+        }
+
+        .stop {
+            pointer-events: none;
+        }
+
+        #field > div {
+            border: 1px solid #A9A9A9;
+            display: inline-block;
+            text-align: center;
+            cursor: default;
+            font-weight: bold;
+        }
+
+        .open {
+            background-color: #dddddd;
+        }
+
+        #about {
+            position: absolute;
+            top: 0;
+            left: -274px;
+            width: 300px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin-top: 10px;
+
+            transition: all .8s ease-in-out;
+            -webkit-transition: all .7s ease-in-out;
+            -moz-transition: all .7s ease-in-out;
+            -o-transition: all .7s ease-in-out;
+        }
+
+        #about h1 {
+            font-size: 120%;
+        }
+
+        #about a {
+            color: #33B5E5;
+        }
+
+        #text {
+            color: #696969;
+            width: 250px;
+            border: 1px solid #A9A9A9;
+            background-color: #f4f4f4;
+            padding: 10px;
+            box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.8);
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+
+        #tab {
+            position: absolute;
+            top: 10px;
+            right: 0;
+            font-size: 26px;
+            width: 27px;
+            border: 1px solid #A9A9A9;
+            border-left: 1px solid #f4f4f4;
+            text-align: center;
+            background-color: #f4f4f4;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+
+        #about:hover {
+            left: -1px;
+        }
+
+    </style>
+</head>
+<body>
+<div id="container">
+    <div id="panel">
+        <span id="game_type">
+            <a href="#" id="noob" class="active">noob</a>
+            <a href="#" id="amateur">amateur</a>
+            <a href="#" id="prof">prof</a>
+        </span>
+        <span id="theme">
+            <a href="#" class="green">&#9679;</a>
+            <a href="#" class="blue">&#9679;</a>
+            <a href="#" class="orange">&#9679;</a>
+        </span>
+
+        <div style="clear: both"></div>
+    </div>
+    <div id="menu">
+        <div id="open"></div>
+        <div id="smile" title="New game"><span></span></div>
+
+        <div id="timer"></div>
+    </div>
+    <div id="field"></div>
+</div>
+
+<div id="about">
+    <div id="text">
+        <h1>Sapper v.0.1</h1>
+
+        <p>
+            Minesweeper's JavaScript realisation by
+            <a href="http://onikienko.pp.ua" target="_blank">Michael Onikienko</a><br/>
+        </p>
+
+        <p>
+            It uses CSS3 and nay CSS4 'pointer-events' property so only modern browsers are supported
+        </p>
+
+        <p>
+            <a href="https://github.com/onikienko/sapper" target="_blank">Source Code on GitHub</a>
+        </p>
+    </div>
+    <div id="tab">
+        ?
+    </div>
+</div>
+</body>
+</html>
