@@ -218,9 +218,21 @@ $(function () {
         }
     }
 
+
     function endGame() {
         clearInterval(timer);
         $field.addClass('stop');
+    }
+
+
+    function checkWin() {
+        if ($field.find('.open').length === game_type.row * game_type.column - game_type.mines_count && marked_count === game_type.mines_count) {
+            $smile.addClass('rotor');
+            setTimeout(function () {
+                $smile.removeClass('rotor');
+            }, 1000);
+            endGame();
+        }
     }
 
     function checkGame($el, cell, ij) {
@@ -277,14 +289,7 @@ $(function () {
             setStyles($el, cell);
             break;
         }
-
-        if ($field.find('.open').length === game_type.row * game_type.column - game_type.mines_count && marked_count === game_type.mines_count) {
-            $smile.addClass('rotor');
-            setTimeout(function () {
-                $smile.removeClass('rotor');
-            }, 1000);
-            endGame();
-        }
+        checkWin();
     }
 
     function fireTimer() {
@@ -320,6 +325,7 @@ $(function () {
                 ++marked_count;
                 showMarkedCount();
                 setStyles($this, cell);
+                checkWin();
             }
 
             $this[0].oncontextmenu = function () {
