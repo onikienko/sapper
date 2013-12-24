@@ -87,8 +87,20 @@ $(function () {
             }
         },
         CLOSE_MAP = [
-            {color: '', html: '&nbsp;'},
-            {color: '#CC0000', html: '&#9658;'}
+            {
+                css: {
+                    textShadow: '',
+                    color: ''
+                },
+                html: '&nbsp;'
+            },
+            {
+                css: {
+                    textShadow: '2px 2px 1px rgba(150, 150, 150, 1)',
+                    color: '#CC0000'
+                },
+                html: '&#9658;'
+            }
         ],
         THEME_MAP = {
             green: '#C5E26D',
@@ -210,7 +222,7 @@ $(function () {
 
     function setStyles($el, cell) {
         if (!cell.open) {
-            $el.attr('class', 'close').css('color', CLOSE_MAP[cell.mark].color).html(CLOSE_MAP[cell.mark].html);
+            $el.attr('class', 'close').css(CLOSE_MAP[cell.mark].css).html(CLOSE_MAP[cell.mark].html);
         } else {
             $el.attr('class', 'open').css({
                 'color': OPEN_MAP[cell.info].color,
