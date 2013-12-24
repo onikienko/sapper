@@ -47,7 +47,7 @@ $(function () {
         OPEN_MAP = {
             m: {
                 color: '#000',
-                html: '*'
+                html: '&bull;'
             },
             0: {
                 color: '#ddd',
@@ -87,8 +87,8 @@ $(function () {
             }
         },
         CLOSE_MAP = [
-            {html: '&nbsp;'},
-            {color: 'red', html: '&#9658;'}
+            {color: '', html: '&nbsp;'},
+            {color: '#CC0000', html: '&#9658;'}
         ],
         THEME_MAP = {
             green: '#C5E26D',
@@ -133,6 +133,7 @@ $(function () {
             fontSize: font_size + 'px',
             lineHeight: Math.floor(game_type.cell_size / font_size * 100) + '%'
         }).removeClass('stop');
+
         for (i = 0; i < game_type.row; i++) {
             field[i] = [];
             for (j = 0; j < game_type.column; j++) {
@@ -209,7 +210,7 @@ $(function () {
 
     function setStyles($el, cell) {
         if (!cell.open) {
-            $el.attr('class', 'close').css('color', CLOSE_MAP[1].color).html(CLOSE_MAP[1].html);
+            $el.attr('class', 'close').css('color', CLOSE_MAP[cell.mark].color).html(CLOSE_MAP[cell.mark].html);
         } else {
             $el.attr('class', 'open').css({
                 'color': OPEN_MAP[cell.info].color,
@@ -283,13 +284,14 @@ $(function () {
             break;
         case 0:
             checkNeighbors(ij);
+            checkWin();
             break;
         default:
             cell.open = true;
             setStyles($el, cell);
+            checkWin();
             break;
         }
-        checkWin();
     }
 
     function fireTimer() {
@@ -320,24 +322,28 @@ $(function () {
         }
 
         if (e.which === 3) { // клик правой княпой мыши
-            if (!cell.open && cell.mark === 0) {
-                cell.mark = 1;
-                ++marked_count;
+            if (!cell.open) {
+                if (!cell.mark) {
+                    if (marked_count < game_type.mines_count) {
+                        cell.mark = 1;
+                        ++marked_count;
+                    }
+                } else {
+                    cell.mark = 0;
+                    --marked_count;
+                }
                 showMarkedCount();
                 setStyles($this, cell);
             }
 
             $this[0].oncontextmenu = function () {
+                checkWin();
                 return false; // отмена показа контекстного меню
             };
-            checkWin();
         } else {
-            if (cell.mark === 1) {
-                cell.mark = 0;
-                --marked_count;
-                showMarkedCount();
+            if (!cell.mark && !cell.open) {
+                checkGame($this, cell, ij);
             }
-            checkGame($this, cell, ij);
         }
     });
 
