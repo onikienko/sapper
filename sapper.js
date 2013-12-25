@@ -1,4 +1,4 @@
-$(function () {
+window.onload = function () {
     /*
      Каждая клетка - объект создаваемый по шаблону
      {
@@ -108,18 +108,38 @@ $(function () {
             orange: '#FFD980'
         },
         OPEN_BG_COLOR = '#ddd',
-        $field = $('#field'),
-        $smile = $('#smile'),
-        $game_type = $('#game_type'),
-        $timer = $('#timer'),
-        $open = $('#open');
+        el_field = document.getElementById('field'),
+        el_smile = document.getElementById('smile'),
+        el_game_type = document.getElementById('game_type'),
+        el_timer = document.getElementById('timer'),
+        el_open = document.getElementById('open');
 
     function showMarkedCount() {
         var marked = (game_type.mines_count - marked_count).toString();
         while (marked.length < 3) {
             marked = '0' + marked;
         }
-        $open.text(marked);
+        el_open.innerHTML = marked;
+    }
+
+    function css(el, obj) {
+        var prop,
+            i,
+            el_len = el.length;
+
+        function applyCss(item) {
+            for (prop in obj) {
+                item.style[prop] = obj[prop];
+            }
+        }
+
+        if (el_len) {
+            for (i = 0; i < el_len; i++) {
+                applyCss(el[i]);
+            }
+        } else {
+            applyCss(el);
+        }
     }
 
     // строю игровое поле HTML. каждая клетка - div с id="i_j" (позволяет связать клетку с элементом массива),
@@ -135,16 +155,17 @@ $(function () {
         clearInterval(timer);
         marked_count = 0;
         showMarkedCount();
-        $timer.text('000');
+        el_timer.innerHTML = '000';
         move_counter = 0;
-        $smile.find('span').html('&#9787;');
-        $smile.css({width: field_width});
+        el_smile.getElementsByTagName('span')[0].innerHTML = '&#9787;';
+        css(el_smile, {width: field_width + 'px'});
 
-        $('#container').css({width: field_width});
-        $field.css({
+        css(document.getElementById('container'), {width: field_width + 'px'});
+        css(el_field, {
             fontSize: font_size + 'px',
             lineHeight: Math.floor(game_type.cell_size / font_size * 100) + '%'
-        }).removeClass('stop');
+        });
+        el_field.classList.remove('stop');
 
         for (i = 0; i < game_type.row; i++) {
             field[i] = [];
@@ -153,11 +174,12 @@ $(function () {
                 html += '<div id="' + i + '_' + j + '" class="close">' + CLOSE_MAP[0].html + '</div>';
             }
         }
-        $field.html(html).find('>div').css({
-            width: game_type.cell_size,
-            height: game_type.cell_size
+        el_field.innerHTML = html;
+        css(el_field.querySelectorAll('div'), {
+            width: game_type.cell_size + 'px',
+            height: game_type.cell_size + 'px'
         });
-        $field.find('.close').css({backgroundColor: theme});
+        css(el_field.querySelectorAll('.close'), {backgroundColor: theme});
     }
 
     function getNeighborsPoints(ij) {
@@ -220,35 +242,39 @@ $(function () {
         }
     }
 
-    function setStyles($el, cell) {
+    function setStyles(el, cell) {
         if (!cell.open) {
-            $el.attr('class', 'close').css(CLOSE_MAP[cell.mark].css).html(CLOSE_MAP[cell.mark].html);
+            el.className = 'close';
+            css(el, CLOSE_MAP[cell.mark].css);
+            el.innerHTML = CLOSE_MAP[cell.mark].html;
         } else {
-            $el.attr('class', 'open').css({
+            el.className = 'open';
+            css(el, {
                 'color': OPEN_MAP[cell.info].color,
                 backgroundColor: OPEN_BG_COLOR
-            }).html(OPEN_MAP[cell.info].html);
+            });
+            el.innerHTML = OPEN_MAP[cell.info].html;
         }
     }
 
 
     function endGame() {
         clearInterval(timer);
-        $field.addClass('stop');
+        el_field.classList.add('stop');
     }
 
 
     function checkWin() {
-        if ($field.find('.open').length === game_type.row * game_type.column - game_type.mines_count && marked_count === game_type.mines_count) {
-            $smile.addClass('rotor');
+        if (el_field.querySelectorAll('.open').length === game_type.row * game_type.column - game_type.mines_count && marked_count === game_type.mines_count) {
+            el_smile.classList.add('rotor');
             setTimeout(function () {
-                $smile.removeClass('rotor');
+                el_smile.classList.remove('rotor');
             }, 1000);
             endGame();
         }
     }
 
-    function checkGame($el, cell, ij) {
+    function checkGame(el, cell, ij) {
         var i,
             j;
 
@@ -258,7 +284,7 @@ $(function () {
                 i;
 
             field[e[0]][e[1]].open = true;
-            setStyles($('#' + e.join('_')), field[e[0]][e[1]]);
+            setStyles(document.getElementById(e.join('_')), field[e[0]][e[1]]);
 
             for (i = 0; i < neighbors.length; i++) {
                 neighbor = neighbors[i];
@@ -272,7 +298,7 @@ $(function () {
                         break;
                     default:
                         field[neighbor[0]][neighbor[1]].open = true;
-                        setStyles($('#' + neighbor.join('_')), field[neighbor[0]][neighbor[1]]);
+                        setStyles(document.getElementById(neighbor.join('_')), field[neighbor[0]][neighbor[1]]);
                     }
                 }
             }
@@ -281,14 +307,14 @@ $(function () {
         switch (cell.info) {
         case 'm':
             cell.open = true;
-            setStyles($el, cell);
+            setStyles(el, cell);
             for (i = 0; i < game_type.row; i++) {
                 for (j = 0; j < game_type.column; j++) {
                     if (field[i][j].info === 'm') {
                         field[i][j].open = true;
-                        setStyles($('#' + i + '_' + j), field[i][j]);
+                        setStyles(document.getElementById(i + '_' + j), field[i][j]);
                         // end game
-                        $smile.find('span').html('&#9785;');
+                        el_smile.getElementsByTagName('span')[0].innerHTML = '&#9785;';
                         endGame();
                     }
                 }
@@ -300,7 +326,7 @@ $(function () {
             break;
         default:
             cell.open = true;
-            setStyles($el, cell);
+            setStyles(el, cell);
             checkWin();
             break;
         }
@@ -314,26 +340,22 @@ $(function () {
                 time = '0' + time;
             }
             if (time < 999) {
-                $timer.text(time);
+                el_timer.innerHTML = time;
             }
 
         }, 250);
     }
 
-    $field.on('mousedown', '>div', function (e) {
-        var $this = $(this),
-            ij = $this.attr('id').split('_'),
+    el_field.oncontextmenu = function (e) {
+        var el,
+            ij,
+            cell;
+        e = e || window.event;
+
+        if (e.target.className !== 'field') {
+            el = e.target;
+            ij = el.id.split('_');
             cell = field[ij[0]][ij[1]];
-
-        ++move_counter;
-
-        if (move_counter === 1) {
-            fillField(ij);
-            start_time = (new Date()).getTime();
-            fireTimer();
-        }
-
-        if (e.which === 3) { // клик правой княпой мыши
             if (!cell.open) {
                 if (!cell.mark) {
                     if (marked_count < game_type.mines_count) {
@@ -345,42 +367,70 @@ $(function () {
                     --marked_count;
                 }
                 showMarkedCount();
-                setStyles($this, cell);
+                setStyles(el, cell);
             }
 
-            $this[0].oncontextmenu = function () {
-                checkWin();
-                return false; // отмена показа контекстного меню
-            };
-        } else {
+            checkWin();
+        }
+        return false; // отмена показа контекстного меню
+    };
+
+    el_field.onclick = function (e) {
+        var el,
+            ij,
+            cell;
+
+        e = e || window.event;
+
+        if (e.target.className !== 'field') {
+            el = e.target;
+            ij = el.id.split('_');
+            cell = field[ij[0]][ij[1]];
+
+            ++move_counter;
+            if (move_counter === 1) {
+                fillField(ij);
+                start_time = (new Date()).getTime();
+                fireTimer();
+            }
+
             if (!cell.mark && !cell.open) {
-                checkGame($this, cell, ij);
+                checkGame(el, cell, ij);
             }
         }
-    });
+    };
 
-    $smile.find('span').click(function () {
+    el_smile.getElementsByTagName('span')[0].onclick = function () {
         start();
-    });
+    };
 
-    $game_type.on('click', 'a', function (e) {
-        var $this = $(this);
+    el_game_type.onclick = function (e) {
+        var el;
 
-        if (!$this.hasClass('active')) {
-            $game_type.find('.active').removeClass('active');
-            $this.addClass('active');
+        e = e || window.event;
+        el = e.target;
+        if (el.tagName.toLowerCase() === 'a') {
+            if (!el.classList.contains('active')) {
+                el_game_type.querySelector('.active').classList.remove('active');
+                el.classList.add('active');
+            }
+            game_type = game[el.id];
+            start();
         }
-        game_type = game[$this.attr('id')];
-        start();
-    });
+    };
 
-    $('#theme').on('click', 'a', function () {
-        var $this = $(this);
-        theme = THEME_MAP[$this.attr('class')];
-        $field.find('.close').css({backgroundColor: theme});
-    });
+    document.querySelector('#theme').onclick = function (e) {
+        var el;
+
+        e = e || window.event;
+        el = e.target;
+        if (el.tagName.toLowerCase() === 'a') {
+            theme = THEME_MAP[el.className];
+            css(el_field.querySelectorAll('.close'), {backgroundColor: theme});
+        }
+    };
 
     theme = THEME_MAP.green;
     game_type = game.noob;
     start();
-});
+};
