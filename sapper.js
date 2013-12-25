@@ -369,6 +369,7 @@ $(function () {
         if (!$this.hasClass('active')) {
             $game_type.find('.active').removeClass('active');
             $this.addClass('active');
+            localStorage["fieldType"] = $this.attr('id');
         }
         game_type = game[$this.attr('id')];
         start();
@@ -381,6 +382,9 @@ $(function () {
     });
 
     theme = THEME_MAP.green;
-    game_type = game.noob;
+    game_type = (localStorage["fieldType"] == undefined || localStorage["fieldType"] == "noob") ? game.noob :
+                (localStorage["fieldType"] == "amateur") ? game.amateur :
+                game.prof;
+    $game_type.find('#' + localStorage["fieldType"]).addClass('active');
     start();
 });
