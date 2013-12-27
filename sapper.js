@@ -37,10 +37,8 @@ window.onload = function () {
                 cell_size: 24
             }
         },
-        game_type,
         start_time,
         timer,
-        theme,
         marked_count = 0,
         field = [], // "двумерный" массив с информацией о каждой клетке игрового поля (отбъкт типа {mine:0, status: 1})
         move_counter, // счетчик ходов
@@ -108,6 +106,15 @@ window.onload = function () {
             orange: '#FFD980'
         },
         OPEN_BG_COLOR = '#ddd',
+        game_type = (function () {
+            localStorage.game_type = localStorage.game_type || 'noob';
+            return game[localStorage.game_type];
+        }()),
+        theme = (function () {
+            localStorage.theme = localStorage.theme || 'green';
+            return THEME_MAP[localStorage.theme];
+        }()),
+        xmlhttp,
         el_field = document.getElementById('field'),
         el_smile = document.getElementById('smile'),
         el_game_type = document.getElementById('game_type'),
@@ -166,6 +173,9 @@ window.onload = function () {
             lineHeight: Math.floor(game_type.cell_size / font_size * 100) + '%'
         });
         el_field.classList.remove('stop');
+
+        el_game_type.querySelector('.active').classList.remove('active');
+        el_game_type.querySelector('#' + localStorage.game_type).className = 'active';
 
         for (i = 0; i < game_type.row; i++) {
             field[i] = [];
@@ -414,6 +424,7 @@ window.onload = function () {
                 el_game_type.querySelector('.active').classList.remove('active');
                 el.classList.add('active');
             }
+            localStorage.game_type = el.id;
             game_type = game[el.id];
             start();
         }
@@ -425,12 +436,11 @@ window.onload = function () {
         e = e || window.event;
         el = e.target;
         if (el.tagName.toLowerCase() === 'a') {
+            localStorage.theme = el.className;
             theme = THEME_MAP[el.className];
             css(el_field.querySelectorAll('.close'), {backgroundColor: theme});
         }
     };
 
-    theme = THEME_MAP.green;
-    game_type = game.noob;
     start();
 };
