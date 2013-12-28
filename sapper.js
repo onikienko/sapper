@@ -41,7 +41,7 @@ window.onload = function () {
         timer,
         marked_count = 0,
         field = [], // "двумерный" массив с информацией о каждой клетке игрового поля (отбъкт типа {mine:0, status: 1})
-        move_counter, // счетчик ходов
+        is_first_move = true, // счетчик ходов
         OPEN_MAP = {
             m: {
                 color: '#000',
@@ -163,7 +163,7 @@ window.onload = function () {
         marked_count = 0;
         showMarkedCount();
         el_timer.innerHTML = '000';
-        move_counter = 0;
+        is_first_move = true;
         el_smile.getElementsByTagName('span')[0].innerHTML = '&#9787;';
         css(el_smile, {width: field_width + 'px'});
 
@@ -356,16 +356,20 @@ window.onload = function () {
         }, 250);
     }
 
-    el_field.oncontextmenu = function (e) {
-        var el,
-            ij,
-            cell;
+    el_field.onmousedown = function (e) {
+        var el = e.target,
+            ij = el.id.split('_'),
+            cell = field[ij[0]][ij[1]];
         e = e || window.event;
 
-        if (e.target.className !== 'field') {
-            el = e.target;
-            ij = el.id.split('_');
-            cell = field[ij[0]][ij[1]];
+        if (is_first_move) {
+            is_first_move = false;
+            fillField(ij);
+            start_time = (new Date()).getTime();
+            fireTimer();
+        }
+
+        if (e.which === 3) {
             if (!cell.open) {
                 if (!cell.mark) {
                     if (marked_count < game_type.mines_count) {
@@ -381,33 +385,15 @@ window.onload = function () {
             }
 
             checkWin();
-        }
-        return false; // отмена показа контекстного меню
-    };
-
-    el_field.onclick = function (e) {
-        var el,
-            ij,
-            cell;
-
-        e = e || window.event;
-
-        if (e.target.className !== 'field') {
-            el = e.target;
-            ij = el.id.split('_');
-            cell = field[ij[0]][ij[1]];
-
-            ++move_counter;
-            if (move_counter === 1) {
-                fillField(ij);
-                start_time = (new Date()).getTime();
-                fireTimer();
-            }
-
+        } else {
             if (!cell.mark && !cell.open) {
                 checkGame(el, cell, ij);
             }
         }
+    };
+
+    el_field.oncontextmenu = function (e) {
+        return false;
     };
 
     el_smile.getElementsByTagName('span')[0].onclick = function () {
