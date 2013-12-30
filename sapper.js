@@ -22,7 +22,7 @@ window.onload = function () {
                 row: 9, // кол-во рядов
                 column: 9,  // кол-во столбцов
                 mines_count: 10, // кол-во мин
-                cell_size: 28 // размер клетки
+                cell_size: 30 // размер клетки
             },
             amateur: {
                 row: 16,
@@ -413,6 +413,7 @@ window.onload = function () {
             localStorage.game_type = el.id;
             game_type = game[el.id];
             start();
+            return false;
         }
     };
 
@@ -425,6 +426,7 @@ window.onload = function () {
             localStorage.theme = el.className;
             theme = THEME_MAP[el.className];
             css(el_field.querySelectorAll('.close'), {backgroundColor: theme});
+            return false;
         }
     };
 
